@@ -20,11 +20,16 @@ export function truncate(str: string, length: number): string {
 export function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
+  // Future timestamps (e.g. a scheduler's next run) render as "in Xs"; past as "Xs ago".
+  const future = diff < 0;
+  const abs = Math.abs(diff);
+  const label = (value: number, unit: string) =>
+    future ? `in ${value}${unit}` : `${value}${unit} ago`;
 
-  if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
-  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-  return `${Math.floor(diff / 86400000)}d ago`;
+  if (abs < 60000) return label(Math.floor(abs / 1000), "s");
+  if (abs < 3600000) return label(Math.floor(abs / 60000), "m");
+  if (abs < 86400000) return label(Math.floor(abs / 3600000), "h");
+  return label(Math.floor(abs / 86400000), "d");
 }
 
 export function formatAbsoluteTime(timestamp: number): string {

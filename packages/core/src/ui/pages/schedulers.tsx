@@ -254,11 +254,11 @@ export function SchedulersPage({
                     onSort={handleDelayedSort}
                   />
                 </div>
-                <div className="col-span-2">Job ID</div>
-                <div className="col-span-3">
+                <div className="col-span-3">Job ID</div>
+                <div className="col-span-2">
                   <SortableHeader
                     field="processAt"
-                    label="Executes At"
+                    label="Executes"
                     currentSort={delayedSort}
                     onSort={handleDelayedSort}
                   />
@@ -286,10 +286,10 @@ export function SchedulersPage({
                   <div className="col-span-2 truncate font-mono text-xs text-muted-foreground">
                     {job.queueName}
                   </div>
-                  <div className="col-span-2 truncate font-mono text-xs text-muted-foreground">
+                  <div className="col-span-3 truncate font-mono text-xs text-muted-foreground">
                     {job.id}
                   </div>
-                  <div className="col-span-3 text-muted-foreground">
+                  <div className="col-span-2 text-muted-foreground">
                     <RelativeTime timestamp={job.processAt} />
                   </div>
                   <div className="col-span-2 text-muted-foreground">
