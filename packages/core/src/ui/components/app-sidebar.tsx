@@ -183,7 +183,7 @@ export function AppSidebar({
   };
 
   return (
-    <aside className="flex h-screen w-[52px] flex-col border-r border-border bg-background">
+    <aside className="flex h-full w-[52px] flex-col border-r border-border bg-background">
       {/* Header */}
       <div className="flex h-14 items-center justify-center border-b border-border">
         <WorkbenchIcon className="h-5 w-5" />

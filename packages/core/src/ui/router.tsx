@@ -218,7 +218,7 @@ function RootLayout() {
 
   if (loading || !config) {
     return (
-      <div className="flex h-screen items-center justify-center bg-background">
+      <div className="flex h-full items-center justify-center bg-background">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
       </div>
     );
@@ -252,7 +252,7 @@ function RootLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-full bg-background">
       <AppSidebar
         queues={config.queues}
         pausedQueues={pausedQueues}

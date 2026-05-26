@@ -120,6 +120,18 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /*
+   * Full-height root chain so the dashboard shell can fill its container with
+   * `h-full` instead of the viewport (`h-screen`). This lets an embedder (e.g.
+   * the desktop app) place the dashboard below a title bar without the bottom
+   * being clipped. Standalone, #root === the viewport, so layout is unchanged.
+   */
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings:
