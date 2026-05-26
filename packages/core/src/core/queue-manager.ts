@@ -1613,6 +1613,8 @@ export class QueueManager {
       }
 
       for (const job of delayedJobs) {
+        // Skip scheduler next-run jobs; they belong to the Repeatable tab.
+        if (job.repeatJobKey) continue;
         const delay = job.opts.delay || 0;
         delayed.push({
           id: job.id || "",
