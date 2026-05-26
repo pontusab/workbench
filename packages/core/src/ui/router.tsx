@@ -46,7 +46,16 @@ export function useSearchContext() {
 // sort format: "field:direction" e.g. "timestamp:desc"
 export const runsSearchSchema = z.object({
   status: z
-    .enum(["all", "active", "completed", "failed", "waiting", "delayed"])
+    .enum([
+      "all",
+      "active",
+      "waiting",
+      "waiting-children",
+      "prioritized",
+      "completed",
+      "failed",
+      "delayed",
+    ])
     .optional()
     .catch("all"),
   q: z.string().optional().catch(""),
@@ -60,7 +69,16 @@ export type RunsSearch = z.infer<typeof runsSearchSchema>;
 // Search params schema for the Queue page
 export const queueSearchSchema = z.object({
   status: z
-    .enum(["all", "active", "completed", "failed", "waiting", "delayed"])
+    .enum([
+      "all",
+      "active",
+      "waiting",
+      "waiting-children",
+      "prioritized",
+      "completed",
+      "failed",
+      "delayed",
+    ])
     .optional()
     .catch("all"),
   sort: z.string().optional(), // format: "field:direction"

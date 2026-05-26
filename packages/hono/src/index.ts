@@ -1,8 +1,5 @@
-import {
-  buildWorkbenchApp,
-  WorkbenchCore,
-  type WorkbenchOptions,
-} from "@getworkbench/core";
+import { WorkbenchCore, type WorkbenchOptions } from "@getworkbench/core";
+import { buildWorkbenchApp } from "@getworkbench/core/hono";
 import type { Queue } from "bullmq";
 import type { Hono } from "hono";
 

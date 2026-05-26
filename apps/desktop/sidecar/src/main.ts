@@ -21,7 +21,8 @@
  * Everything else (the actual job dashboard logic) lives in `@getworkbench/core`.
  */
 
-import { buildWorkbenchApiApp, WorkbenchCore } from "@getworkbench/core";
+import { WorkbenchCore } from "@getworkbench/core";
+import { buildWorkbenchApiApp } from "@getworkbench/core/hono";
 
 interface ReadyEvent {
   event: "ready";

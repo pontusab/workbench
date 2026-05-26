@@ -48,6 +48,12 @@ Visit `http://localhost:3000/jobs`.
 
 Call `workbench(app, ...)` **before** `app.listen(...)`.
 
+## Requirements
+
+- Node 18+
+- NestJS 10+ (Express or Fastify platform)
+- TypeScript 4.x or 5.x (no specific minimum)
+
 ## Options
 
 | Option     | Type                        | Description                                            |

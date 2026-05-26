@@ -10,7 +10,6 @@ export {
   type HttpMethod,
   type RouteDef,
 } from "./api/handlers";
-export { createApiRoutes } from "./api/router";
 
 export { discoverQueues } from "./core/discover";
 export { QueueManager } from "./core/queue-manager";
@@ -52,8 +51,6 @@ export {
   BASIC_AUTH_CHALLENGE,
   checkBasicAuth,
 } from "./server/basic-auth";
-export { buildWorkbenchApiApp } from "./server/hono-api-app";
-export { buildWorkbenchApp } from "./server/hono-app";
 export {
   type IndexHtmlResult,
   renderIndexHtml,

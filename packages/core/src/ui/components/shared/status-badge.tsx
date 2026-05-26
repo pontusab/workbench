@@ -11,35 +11,47 @@ const statusConfig: Record<
   JobStatus,
   { label: string; dotClass: string; textClass: string; bgClass: string }
 > = {
+  active: {
+    label: "Active",
+    dotClass: "bg-status-active",
+    textClass: "text-status-active",
+    bgClass: "bg-status-active/10",
+  },
+  waiting: {
+    label: "Waiting",
+    dotClass: "bg-status-pending",
+    textClass: "text-status-pending",
+    bgClass: "bg-status-pending/10",
+  },
+  "waiting-children": {
+    label: "Waiting Children",
+    dotClass: "bg-status-pending",
+    textClass: "text-status-pending",
+    bgClass: "bg-status-pending/10",
+  },
+  prioritized: {
+    label: "Prioritized",
+    dotClass: "bg-status-warning",
+    textClass: "text-status-warning",
+    bgClass: "bg-status-warning/10",
+  },
   completed: {
     label: "Completed",
     dotClass: "bg-status-success",
     textClass: "text-status-success",
     bgClass: "bg-status-success/10",
   },
-  active: {
-    label: "Running",
-    dotClass: "bg-status-active",
-    textClass: "text-status-active",
-    bgClass: "bg-status-active/10",
-  },
-  waiting: {
-    label: "Queued",
-    dotClass: "bg-status-pending",
-    textClass: "text-status-pending",
-    bgClass: "bg-status-pending/10",
+  failed: {
+    label: "Failed",
+    dotClass: "bg-status-error",
+    textClass: "text-status-error",
+    bgClass: "bg-status-error/10",
   },
   delayed: {
     label: "Delayed",
     dotClass: "bg-status-warning",
     textClass: "text-status-warning",
     bgClass: "bg-status-warning/10",
-  },
-  failed: {
-    label: "Failed",
-    dotClass: "bg-status-error",
-    textClass: "text-status-error",
-    bgClass: "bg-status-error/10",
   },
   paused: {
     label: "Paused",

@@ -36,8 +36,10 @@ interface QueuePageProps {
 
 const statusTabs: { value: JobStatus | "all"; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "waiting", label: "Waiting" },
   { value: "active", label: "Active" },
+  { value: "waiting", label: "Waiting" },
+  { value: "waiting-children", label: "Waiting Children" },
+  { value: "prioritized", label: "Prioritized" },
   { value: "completed", label: "Completed" },
   { value: "failed", label: "Failed" },
   { value: "delayed", label: "Delayed" },

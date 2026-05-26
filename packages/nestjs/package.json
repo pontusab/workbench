@@ -1,6 +1,6 @@
 {
   "name": "@getworkbench/nestjs",
-  "version": "0.2.1",
+  "version": "0.3.2",
   "description": "NestJS adapter for Workbench — drop-in BullMQ dashboard.",
   "type": "module",
   "main": "./dist/index.js",
@@ -40,5 +40,8 @@
     "@nestjs/common": ">=10.0.0",
     "@nestjs/core": ">=10.0.0",
     "bullmq": ">=5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

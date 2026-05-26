@@ -46,6 +46,12 @@ Visit `http://localhost:3000/<mount>`.
 > Note: Next.js doesn't host BullMQ workers itself — run them in a sibling
 > process. See `examples/with-next/` for a reference.
 
+## Requirements
+
+- Node 18+
+- Next.js 14+ (App Router)
+- TypeScript 4.x or 5.x (no specific minimum)
+
 ## Options
 
 | Option     | Type                        | Description                                            |

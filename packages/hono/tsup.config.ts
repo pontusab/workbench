@@ -5,8 +5,8 @@ export default defineConfig({
   format: ["esm"],
   dts: true,
   sourcemap: true,
-  clean: false,
+  clean: true,
   target: "node18",
   outDir: "dist",
-  external: ["@getworkbench/core", "bullmq", "hono"],
+  external: ["@getworkbench/core", "@getworkbench/core/hono", "bullmq", "hono"],
 });

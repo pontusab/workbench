@@ -43,7 +43,9 @@ function QueueCounts({ queueName }: { queueName: string }) {
     counts.active +
     counts.completed +
     counts.failed +
-    counts.delayed;
+    counts.delayed +
+    counts.prioritized +
+    counts["waiting-children"];
 
   return (
     <div className="flex gap-2 text-[9px]">
@@ -53,8 +55,22 @@ function QueueCounts({ queueName }: { queueName: string }) {
       {counts.waiting > 0 && (
         <span className="text-muted-foreground">{counts.waiting} waiting</span>
       )}
+      {counts["waiting-children"] > 0 && (
+        <span className="text-muted-foreground">
+          {counts["waiting-children"]} waiting children
+        </span>
+      )}
+      {counts.prioritized > 0 && (
+        <span className="text-chart-4">{counts.prioritized} prioritized</span>
+      )}
+      {counts.completed > 0 && (
+        <span className="text-chart-1">{counts.completed} completed</span>
+      )}
       {counts.failed > 0 && (
         <span className="text-chart-3">{counts.failed} failed</span>
+      )}
+      {counts.delayed > 0 && (
+        <span className="text-chart-5">{counts.delayed} delayed</span>
       )}
       {total === 0 && <span className="text-muted-foreground">empty</span>}
     </div>
@@ -209,28 +225,31 @@ export function AppSidebar({
                 side="right"
                 align="start"
                 sideOffset={16}
-                className="w-auto min-w-[140px] p-1"
+                className="w-auto min-w-[140px] max-w-[260px] p-1"
               >
-                <div className="space-y-0.5">
-                  <div className="px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    Queues
-                  </div>
+                <div className="px-2 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  Queues
+                </div>
+                <div className="max-h-[min(70svh,32rem)] space-y-0.5 overflow-y-auto pr-0.5">
                   {queues.map((queue) => (
                     <button
                       key={queue}
                       type="button"
                       onClick={() => onQueueSelect(queue)}
+                      title={queue}
                       className={cn(
-                        "flex w-full flex-col items-start gap-0.5 px-2 py-1.5 transition-colors",
+                        "flex w-full min-w-0 flex-col items-start gap-0.5 px-2 py-1.5 transition-colors",
                         activeQueue === queue
                           ? "text-foreground"
                           : "text-muted-foreground hover:text-foreground",
                       )}
                     >
-                      <div className="flex w-full items-center justify-between gap-2">
-                        <span className="font-mono text-[11px]">{queue}</span>
+                      <div className="flex w-full min-w-0 items-center justify-between gap-2">
+                        <span className="min-w-0 truncate font-mono text-[11px]">
+                          {queue}
+                        </span>
                         {pausedQueues.has(queue) && (
-                          <span className="h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
                         )}
                       </div>
                       <QueueCounts queueName={queue} />

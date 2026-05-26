@@ -30,12 +30,6 @@ const statusConfig: Record<
     animate?: boolean;
   }
 > = {
-  completed: {
-    icon: CheckCircle2,
-    color: "text-emerald-600 dark:text-emerald-400",
-    bg: "bg-emerald-50 dark:bg-emerald-500/10",
-    border: "border-emerald-200 dark:border-emerald-500/20",
-  },
   active: {
     icon: Loader2,
     color: "text-blue-600 dark:text-blue-400",
@@ -49,17 +43,35 @@ const statusConfig: Record<
     bg: "bg-muted/30",
     border: "border-border",
   },
-  delayed: {
+  "waiting-children": {
+    icon: Circle,
+    color: "text-muted-foreground",
+    bg: "bg-muted/30",
+    border: "border-border",
+  },
+  prioritized: {
     icon: Clock,
     color: "text-amber-600 dark:text-amber-400",
     bg: "bg-amber-50 dark:bg-amber-500/10",
     border: "border-amber-200 dark:border-amber-500/20",
+  },
+  completed: {
+    icon: CheckCircle2,
+    color: "text-emerald-600 dark:text-emerald-400",
+    bg: "bg-emerald-50 dark:bg-emerald-500/10",
+    border: "border-emerald-200 dark:border-emerald-500/20",
   },
   failed: {
     icon: XCircle,
     color: "text-destructive",
     bg: "bg-red-50 dark:bg-red-500/10",
     border: "border-red-200 dark:border-red-500/20",
+  },
+  delayed: {
+    icon: Clock,
+    color: "text-amber-600 dark:text-amber-400",
+    bg: "bg-amber-50 dark:bg-amber-500/10",
+    border: "border-amber-200 dark:border-amber-500/20",
   },
   paused: {
     icon: Pause,

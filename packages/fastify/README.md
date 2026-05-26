@@ -44,7 +44,11 @@ await app.listen({ port: 3000 });
 
 Visit `http://localhost:3000/jobs`.
 
-Requires Fastify v5 or newer.
+## Requirements
+
+- Node 18+
+- Fastify 5+
+- TypeScript: this adapter itself has no specific minimum, but Fastify 5's own bundled `.d.ts` uses TypeScript 5.0 syntax, so most projects will need TS 5.0+ in practice.
 
 ## Options
 

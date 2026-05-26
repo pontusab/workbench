@@ -1,6 +1,6 @@
 {
   "name": "@getworkbench/next",
-  "version": "0.2.1",
+  "version": "0.3.2",
   "description": "Next.js App Router adapter for Workbench — drop-in BullMQ dashboard.",
   "type": "module",
   "main": "./dist/index.js",
@@ -38,5 +38,8 @@
   "peerDependencies": {
     "bullmq": ">=5.0.0",
     "next": ">=14.0.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

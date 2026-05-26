@@ -197,6 +197,8 @@ Visit `http://localhost:PORT/jobs`.
 
 **What Node version?** 18+ (or Bun 1.1+ for the Elysia adapter).
 
+**What TypeScript version?** Any TypeScript 4.x or 5.x for the non-Hono adapters (Express, Fastify, NestJS, Next.js, Elysia) and `@getworkbench/core`. **`@getworkbench/hono` requires TypeScript 5.0+** because Hono 4's own bundled `.d.ts` uses `const` type parameters introduced in TS 5.0.
+
 **Can I run it without auth?** Yes, omit the `auth` option. Don't do that in production.
 
 **Does it require a separate service?** No. It mounts as a route in your existing backend.

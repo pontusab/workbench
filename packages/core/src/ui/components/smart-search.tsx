@@ -18,10 +18,12 @@ interface SmartSearchProps {
 
 const STATUS_OPTIONS = [
   { value: "all", label: "All statuses" },
-  { value: "active", label: "Running" },
+  { value: "active", label: "Active" },
+  { value: "waiting", label: "Waiting" },
+  { value: "waiting-children", label: "Waiting Children" },
+  { value: "prioritized", label: "Prioritized" },
   { value: "completed", label: "Completed" },
   { value: "failed", label: "Failed" },
-  { value: "waiting", label: "Queued" },
   { value: "delayed", label: "Delayed" },
 ];
 

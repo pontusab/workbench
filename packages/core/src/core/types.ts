@@ -4,8 +4,10 @@ import type { Queue, RedisOptions } from "bullmq";
  * Job status types matching BullMQ states
  */
 export type JobStatus =
-  | "waiting"
   | "active"
+  | "waiting"
+  | "waiting-children"
+  | "prioritized"
   | "completed"
   | "failed"
   | "delayed"
@@ -59,6 +61,8 @@ export interface QueueInfo {
     completed: number;
     failed: number;
     delayed: number;
+    prioritized: number;
+    "waiting-children": number;
     paused: number;
   };
   isPaused: boolean;

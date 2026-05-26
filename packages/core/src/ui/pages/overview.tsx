@@ -105,12 +105,17 @@ export function OverviewPage({ onQueueSelect }: OverviewPageProps) {
               type="button"
               key={queue.name}
               onClick={() => onQueueSelect(queue.name)}
-              className="text-left p-4 border bg-card hover:bg-accent transition-colors"
+              className="text-left p-4 border bg-card hover:bg-accent transition-colors min-w-0"
             >
-              <div className="flex items-center justify-between mb-3">
-                <span className="font-mono font-medium">{queue.name}</span>
+              <div className="flex items-center justify-between gap-2 mb-3 min-w-0">
+                <span
+                  className="font-mono font-medium truncate min-w-0"
+                  title={queue.name}
+                >
+                  {queue.name}
+                </span>
                 {queue.isPaused && (
-                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5">
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 shrink-0">
                     Paused
                   </span>
                 )}

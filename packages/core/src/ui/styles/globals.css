@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     /* Light theme - Neutral UI with vibrant data colors */
@@ -123,6 +125,17 @@
     font-feature-settings:
       "rlig" 1,
       "calt" 1;
+  }
+
+  /*
+   * Tailwind v4 drops `cursor: pointer` from the default `<button>` preflight
+   * (see https://tailwindcss.com/docs/upgrade-guide). Restore it explicitly so
+   * the dashboard's icon buttons (sidebar nav, queue items, theme toggle, etc.)
+   * show a pointer on hover again. Disabled buttons are explicitly excluded.
+   */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
   }
 
   /* Remove focus ring outlines from Recharts elements */

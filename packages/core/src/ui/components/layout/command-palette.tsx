@@ -372,11 +372,13 @@ export function CommandPalette({
 
 function StatusDot({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    completed: "bg-success",
     active: "bg-warning",
     waiting: "bg-muted-foreground",
-    delayed: "bg-muted-foreground",
+    "waiting-children": "bg-muted-foreground",
+    prioritized: "bg-muted-foreground",
+    completed: "bg-success",
     failed: "bg-destructive",
+    delayed: "bg-muted-foreground",
   };
 
   return (

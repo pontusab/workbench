@@ -48,6 +48,12 @@ new Elysia()
 
 Visit `http://localhost:3000/jobs`.
 
+## Requirements
+
+- Bun 1.1+ (or Node 18+ if you don't use Elysia's Bun-specific features)
+- Elysia 1.0+
+- TypeScript: this adapter itself has no specific minimum, but Elysia declares a `typescript >= 5.0.0` peer dependency, so most projects will need TS 5.0+ in practice.
+
 ## Options
 
 | Option     | Type                        | Description                                            |

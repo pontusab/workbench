@@ -47,31 +47,52 @@ bun add hono bullmq
 bunx @getworkbench/cli@alpha init --yes --no-docker
 ```
 
-## Stable release (0.1.x, 0.2.x…)
+## Stable release (0.1.x, 0.2.x, 0.3.x…)
 
-Same flow, swap `--tag alpha` for the default latest tag:
+Same flow, swap `--tag alpha` for the default latest tag. **All adapter
+packages must bump together** because they share `@getworkbench/core` via
+`workspace:*`, and the published tarballs need a real version range.
 
 ```bash
-for p in core hono cli; do
-  (cd packages/$p && npm version 0.1.0 --no-git-tag-version)
+# 1. Bump core + every adapter in lockstep. `npm version` does not handle
+#    `workspace:*` deps, so edit the `"version"` field in each package.json
+#    directly (or use a tiny sed script).
+for p in core express fastify next nestjs elysia hono; do
+  sed -i.bak -E "s/(\"version\": )\"[^\"]+\"/\\1\"0.3.0\"/" "packages/$p/package.json"
+  rm "packages/$p/package.json.bak"
 done
 
-(cd packages/core && npm publish --access public)
-(cd packages/hono && npm publish --access public)
-(cd packages/cli  && npm publish --access public)
+# 2. CLI bumps independently — only if its code changed.
+# (cd packages/cli && sed -i.bak -E "s/(\"version\": )\"[^\"]+\"/\\1\"0.3.0\"/" package.json && rm package.json.bak)
 
-git commit -am "release: 0.1.0"
-git tag v0.1.0
+# 3. Clean rebuild and verify.
+bun run --filter '@getworkbench/*' build
+bun run typecheck
+
+# 4. Publish in dependency order. `bun publish` rewrites `workspace:*` to a
+#    real caret range based on the in-workspace version.
+(cd packages/core    && bun publish --access public)
+(cd packages/express && bun publish --access public)
+(cd packages/fastify && bun publish --access public)
+(cd packages/hono    && bun publish --access public)
+(cd packages/elysia  && bun publish --access public)
+(cd packages/next    && bun publish --access public)
+(cd packages/nestjs  && bun publish --access public)  # depends on express + fastify, publish last
+# (cd packages/cli   && bun publish --access public)  # only if you bumped it
+
+# 5. Commit, tag, push.
+git commit -am "release: 0.3.0"
+git tag v0.3.0
 git push && git push --tags
 ```
 
-Then cut a GitHub Release from `v0.1.0` using the `CHANGELOG.md` entry as the body.
+Then cut a GitHub Release from `v0.3.0` using the `CHANGELOG.md` entry as the body.
 
 ## Versioning rules
 
-- Keep `@getworkbench/core` and `@getworkbench/hono` in **lockstep** (same version). `hono` imports `core` via a caret range, and the two ship together.
-- `@getworkbench/cli` versions **independently** — the CLI's public surface is the command line flags, not the API.
-- Breaking changes: bump the minor until 1.0 (`0.2.0`, `0.3.0`...).
+- Keep `@getworkbench/core` and every framework adapter (`hono`, `express`, `fastify`, `next`, `nestjs`, `elysia`) in **lockstep** (same version). They all consume `core` via `workspace:*` and need the same caret range at publish time.
+- `@getworkbench/cli` versions **independently** — its public surface is the command-line flags, not the API. Only bump it when its own code changed.
+- Breaking changes (including removing or relocating any export from a package's published surface): bump the minor until 1.0 (`0.2.0`, `0.3.0`...). Patch bumps (`0.x.Y`) are only for non-breaking fixes.
 
 ## Vercel
 

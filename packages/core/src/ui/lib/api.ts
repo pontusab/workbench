@@ -128,6 +128,8 @@ export const api = {
     completed: number;
     failed: number;
     delayed: number;
+    prioritized: number;
+    "waiting-children": number;
     total: number;
     timestamp: number;
   }> {
@@ -386,9 +388,15 @@ export const api = {
     data: unknown;
     delay?: number;
   }): Promise<{ id: string }> {
+    const payload = {
+      queueName: request.queueName,
+      jobName: request.name,
+      data: request.data,
+      opts: request.delay !== undefined ? { delay: request.delay } : undefined,
+    };
     return fetchJson(`${API_BASE}/test`, {
       method: "POST",
-      body: JSON.stringify(request),
+      body: JSON.stringify(payload),
     });
   },
 

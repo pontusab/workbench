@@ -46,6 +46,12 @@ export default app;
 
 Visit `http://localhost:PORT/jobs`.
 
+## Requirements
+
+- Node 18+ (or any other runtime Hono supports)
+- Hono 4+
+- TypeScript 5.0+ (if you build with `tsc`). This adapter's public types reference `Hono`, and Hono 4's bundled `.d.ts` uses `const` type parameters introduced in TS 5.0. The other Workbench adapters (Express, Fastify, NestJS, Next.js, Elysia) do not have this requirement.
+
 ## Options
 
 | Option     | Type                        | Description                                            |

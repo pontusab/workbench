@@ -44,7 +44,11 @@ app.listen(3000);
 
 Visit `http://localhost:3000/jobs`.
 
-Compatible with Express 4 and Express 5.
+## Requirements
+
+- Node 18+
+- Express 4 or 5
+- TypeScript 4.x or 5.x (no specific minimum)
 
 ## Options
 

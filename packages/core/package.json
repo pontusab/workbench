@@ -1,6 +1,6 @@
 {
   "name": "@getworkbench/core",
-  "version": "0.2.1",
+  "version": "0.3.2",
   "description": "Core of Workbench — QueueManager, API router, and bundled UI.",
   "type": "module",
   "main": "./dist/index.js",
@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./hono": {
+      "types": "./dist/hono.d.ts",
+      "import": "./dist/hono.js"
     },
     "./ui": {
       "types": "./src/ui/index.ts",
@@ -22,7 +26,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "bun run build:ui && bun run build:lib",
+    "build": "bun run clean && bun run build:ui && bun run build:lib",
     "build:lib": "tsup",
     "build:ui": "vite build",
     "dev": "tsup --watch",
@@ -82,5 +86,8 @@
   "peerDependencies": {
     "bullmq": ">=5.0.0",
     "ioredis": ">=5.0.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
