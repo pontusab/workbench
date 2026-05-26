@@ -169,6 +169,7 @@ export interface RunInfoList {
  * Scheduler info for repeatable jobs
  */
 export interface SchedulerInfo {
+  /** Job scheduler key (the id passed to upsertJobScheduler); used by "Run now". */
   key: string;
   name: string;
   queueName: string;

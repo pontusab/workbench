@@ -1,15 +1,40 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, Clock, Timer } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Loader2,
+  Play,
+  Timer,
+} from "lucide-react";
+import { useState } from "react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { RelativeTime } from "@/components/shared/relative-time";
 import { SortableHeader, useSort } from "@/components/shared/sortable-header";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { SchedulerInfo } from "@/core/types";
 import {
   useDelayedSchedulers,
   useRefresh,
   useRepeatableSchedulers,
+  useRunScheduler,
 } from "@/lib/hooks";
-import { formatDuration } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 import type { SchedulersSearch } from "@/router";
 
 interface SchedulersPageProps {
@@ -49,6 +74,45 @@ export function SchedulersPage({
   // Server-side cache refresh
   const refreshMutation = useRefresh();
 
+  // "Run now" confirmation dialog state
+  const navigate = useNavigate();
+  const runScheduler = useRunScheduler();
+  const [runTarget, setRunTarget] = useState<SchedulerInfo | null>(null);
+  const [runResult, setRunResult] = useState<
+    | { success: true; jobId: string }
+    | { success: false; message: string }
+    | null
+  >(null);
+
+  const closeRunDialog = () => {
+    setRunTarget(null);
+    setRunResult(null);
+  };
+
+  const confirmRun = () => {
+    if (!runTarget) return;
+    setRunResult(null);
+    runScheduler.mutate(
+      { queueName: runTarget.queueName, schedulerKey: runTarget.key },
+      {
+        onSuccess: (res) => setRunResult({ success: true, jobId: res.id }),
+        onError: (err) =>
+          setRunResult({ success: false, message: err.message }),
+      },
+    );
+  };
+
+  // Open the just-triggered job, closing the dialog first.
+  const openTriggeredJob = (jobId: string) => {
+    const queueName = runTarget?.queueName;
+    if (!queueName) return;
+    closeRunDialog();
+    navigate({
+      to: "/queues/$queueName/jobs/$jobId",
+      params: { queueName, jobId },
+    });
+  };
+
   const _loading =
     repeatableLoading ||
     delayedLoading ||
@@ -77,9 +141,10 @@ export function SchedulersPage({
           <div className="grid grid-cols-12 gap-4 border-b border-dashed py-2.5 text-[11px] uppercase tracking-wider text-muted-foreground">
             <div className="col-span-3">Name</div>
             <div className="col-span-2">Queue</div>
-            <div className="col-span-3">Pattern</div>
+            <div className="col-span-2">Pattern</div>
             <div className="col-span-2">Next Run</div>
             <div className="col-span-2">Timezone</div>
+            <div className="col-span-1" />
           </div>
           {/* Skeleton Rows */}
           <div className="divide-y divide-border/50">
@@ -95,7 +160,7 @@ export function SchedulersPage({
                 <div className="col-span-2">
                   <div className="h-3 w-16 animate-pulse rounded bg-muted" />
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-2">
                   <div className="h-4 w-20 animate-pulse rounded bg-muted" />
                 </div>
                 <div className="col-span-2">
@@ -103,6 +168,9 @@ export function SchedulersPage({
                 </div>
                 <div className="col-span-2">
                   <div className="h-3 w-16 animate-pulse rounded bg-muted" />
+                </div>
+                <div className="col-span-1 flex justify-end">
+                  <div className="h-8 w-8 animate-pulse rounded bg-muted" />
                 </div>
               </div>
             ))}
@@ -164,7 +232,7 @@ export function SchedulersPage({
                     onSort={handleRepeatableSort}
                   />
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-2">
                   <SortableHeader
                     field="pattern"
                     label="Pattern"
@@ -188,6 +256,7 @@ export function SchedulersPage({
                     onSort={handleRepeatableSort}
                   />
                 </div>
+                <div className="col-span-1" />
               </div>
 
               {/* Rows */}
@@ -205,7 +274,7 @@ export function SchedulersPage({
                   <div className="col-span-2 truncate font-mono text-xs text-muted-foreground">
                     {scheduler.queueName}
                   </div>
-                  <div className="col-span-3 font-mono text-xs">
+                  <div className="col-span-2 font-mono text-xs">
                     {scheduler.pattern ||
                       (scheduler.every
                         ? `every ${formatDuration(scheduler.every)}`
@@ -220,6 +289,25 @@ export function SchedulersPage({
                   </div>
                   <div className="col-span-2 text-xs text-muted-foreground">
                     {scheduler.tz || "UTC"}
+                  </div>
+                  <div className="col-span-1 flex justify-end">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => {
+                            setRunResult(null);
+                            setRunTarget(scheduler);
+                          }}
+                        >
+                          <Play className="h-4 w-4" />
+                          <span className="sr-only">Run now</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="left">Run now</TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
               ))}
@@ -301,6 +389,85 @@ export function SchedulersPage({
           )}
         </TabsContent>
       </Tabs>
+
+      <Dialog
+        open={runTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) closeRunDialog();
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Run job now</DialogTitle>
+            <DialogDescription>
+              {runTarget ? (
+                <>
+                  <span className="font-medium text-foreground">
+                    {runTarget.name}
+                  </span>{" "}
+                  on queue{" "}
+                  <span className="font-mono">{runTarget.queueName}</span>. Runs
+                  once now; the schedule is unchanged.
+                </>
+              ) : null}
+            </DialogDescription>
+          </DialogHeader>
+
+          {runResult ? (
+            <div
+              className={cn(
+                "flex items-center gap-2 text-sm",
+                runResult.success ? "text-success" : "text-destructive",
+              )}
+            >
+              {runResult.success ? (
+                <>
+                  <CheckCircle className="h-4 w-4 shrink-0" />
+                  <button
+                    type="button"
+                    onClick={() => openTriggeredJob(runResult.jobId)}
+                    className="cursor-pointer transition-colors hover:text-foreground/80"
+                  >
+                    Triggered job{" "}
+                    <span className="font-mono">{runResult.jobId}</span>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {runResult.message}
+                </>
+              )}
+            </div>
+          ) : null}
+
+          <DialogFooter>
+            {runResult?.success ? (
+              <Button onClick={closeRunDialog}>Close</Button>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={closeRunDialog}
+                  disabled={runScheduler.isPending}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={confirmRun} disabled={runScheduler.isPending}>
+                  {runScheduler.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Running…
+                    </>
+                  ) : (
+                    "Run now"
+                  )}
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

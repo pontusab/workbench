@@ -306,6 +306,28 @@ export function usePromoteJob() {
 }
 
 /**
+ * Hook for triggering an immediate one-off run of a repeatable scheduler
+ */
+export function useRunScheduler() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      queueName,
+      schedulerKey,
+    }: {
+      queueName: string;
+      schedulerKey: string;
+    }) => api.runScheduler(queueName, schedulerKey),
+    onSuccess: (_, { queueName }) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.jobsAll(queueName) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.runsAll });
+      queryClient.invalidateQueries({ queryKey: queryKeys.queues });
+    },
+  });
+}
+
+/**
  * Hook for testing a job
  */
 export function useTestJob() {

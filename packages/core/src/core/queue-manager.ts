@@ -1,4 +1,4 @@
-import { FlowProducer, type Job, type Queue } from "bullmq";
+import { FlowProducer, type Job, type JobsOptions, type Queue } from "bullmq";
 import { LRUCache } from "lru-cache";
 import type {
   ActivityBucket,
@@ -1552,7 +1552,9 @@ export class QueueManager {
     const results = await Promise.all(
       queueEntries.map(async ([queueName, queue]) => {
         const [repeatableJobs, delayedJobs] = await Promise.all([
-          queue.getRepeatableJobs(),
+          // getJobSchedulers replaces the deprecated getRepeatableJobs (removed
+          // in BullMQ v6) and exposes the scheduler id + template "Run now" needs.
+          queue.getJobSchedulers(),
           queue.getJobs("delayed", 0, 50),
         ]);
         return { queueName, repeatableJobs, delayedJobs };
@@ -1567,7 +1569,7 @@ export class QueueManager {
           name: job.name || "unnamed",
           queueName,
           pattern: job.pattern ?? undefined,
-          every: job.every ? Number(job.every) : undefined,
+          every: job.every ?? undefined,
           next: job.next ?? undefined,
           endDate: job.endDate ?? undefined,
           tz: job.tz ?? undefined,
@@ -1628,6 +1630,70 @@ export class QueueManager {
     });
 
     return { id: job.id || "" };
+  }
+
+  /**
+   * Trigger an immediate, one-off run of a repeatable job scheduler.
+   *
+   * Enqueues a clone of the scheduler's job (name + data + opts) so the run
+   * behaves like a scheduled execution, but as a standalone job. The repeat
+   * schedule is left untouched, and scheduling internals are stripped so it
+   * runs now and never collides with the deterministic ids of scheduled
+   * iterations.
+   *
+   * `schedulerKey` is the scheduler's `key` from {@link getSchedulers} (the id
+   * passed to upsertJobScheduler). We resolve it via getJobSchedulers rather
+   * than the singular getJobScheduler, which mis-parses some keys.
+   *
+   * Data/opts source: modern schedulers (upsertJobScheduler) carry a `template`.
+   * Legacy repeatables — `queue.add(name, data, { repeat })` — store NO template,
+   * so we fall back to the next pending iteration (a delayed job tagged with this
+   * scheduler's key), which carries the real payload and options.
+   */
+  async runSchedulerNow(
+    queueName: string,
+    schedulerKey: string,
+  ): Promise<{ id: string } | null> {
+    const queue = this.queues.get(queueName);
+    if (!queue) return null;
+
+    // Re-fetch so we use the scheduler's current state, not stale list data.
+    const scheduler = (await queue.getJobSchedulers()).find(
+      (s) => s.key === schedulerKey,
+    );
+    if (!scheduler) return null;
+
+    let data: unknown = scheduler.template?.data;
+    let rawOpts: Record<string, unknown> = { ...scheduler.template?.opts };
+
+    if (data === undefined) {
+      // Legacy repeatable: no template — clone the next scheduled iteration.
+      const delayed = await queue.getJobs("delayed", 0, -1);
+      const next = delayed.find((j) => j.repeatJobKey === schedulerKey);
+      if (next) {
+        data = next.data;
+        rawOpts = { ...next.opts };
+      }
+    }
+
+    // Strip scheduling internals so this is a clean one-off that runs now.
+    const {
+      repeat: _repeat,
+      jobId: _jobId,
+      delay: _delay,
+      repeatJobKey: _repeatJobKey,
+      prevMillis: _prevMillis,
+      timestamp: _timestamp,
+      ...opts
+    } = rawOpts;
+
+    const job = await queue.add(
+      scheduler.name,
+      data ?? {},
+      opts as JobsOptions,
+    );
+
+    return { id: job.id ?? "" };
   }
 
   /**

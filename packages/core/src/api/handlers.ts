@@ -316,6 +316,19 @@ export function buildRouteTable(core: WorkbenchCore): RouteDef[] {
     },
 
     {
+      method: "post",
+      path: "/schedulers/:queue/:key/run",
+      handler: async ({ params }) => {
+        if (isReadonly()) return readonlyError;
+        const result = await qm.runSchedulerNow(params.queue!, params.key!);
+        if (!result) {
+          return { status: 400, body: { error: "Failed to run scheduler" } };
+        }
+        return { status: 200, body: result };
+      },
+    },
+
+    {
       method: "get",
       path: "/search",
       handler: async ({ query }) => {

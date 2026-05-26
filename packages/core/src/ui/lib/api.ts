@@ -232,6 +232,19 @@ export const api = {
   },
 
   /**
+   * Trigger an immediate one-off run of a repeatable job scheduler
+   */
+  async runScheduler(
+    queueName: string,
+    schedulerKey: string,
+  ): Promise<{ id: string }> {
+    return fetchJson(
+      `${API_BASE}/schedulers/${encodeURIComponent(queueName)}/${encodeURIComponent(schedulerKey)}/run`,
+      { method: "POST" },
+    );
+  },
+
+  /**
    * Search jobs
    */
   async search(
