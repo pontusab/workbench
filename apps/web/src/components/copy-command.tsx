@@ -43,15 +43,15 @@ export function CopyCommand({ command, variant = "button" }: CopyCommandProps) {
     <button
       type="button"
       onClick={onCopy}
-      className="group inline-flex items-center gap-3 border border-[color:var(--color-border)] bg-[color:var(--color-muted)] px-5 py-3 font-mono text-sm transition hover:border-[color:var(--color-foreground)]/40"
+      className="group flex w-full items-start gap-2 overflow-hidden border border-[color:var(--color-border)] bg-[color:var(--color-muted)] px-5 py-3 font-mono text-sm transition hover:border-[color:var(--color-foreground)]/40"
       aria-label={`Copy command: ${command}`}
     >
-      <span className="text-[color:var(--color-muted-foreground)]">$</span>
-      <span>{command}</span>
+      <span className="shrink-0 text-[color:var(--color-muted-foreground)]">$</span>
+      <span className="min-w-0 flex-1 overflow-x-auto whitespace-pre text-start">{command}</span>
       {copied ? (
-        <CheckIcon className="h-4 w-4 text-emerald-400" />
+        <CheckIcon className="h-4 w-4 shrink-0 text-emerald-400" />
       ) : (
-        <CopyIcon className="h-4 w-4 text-[color:var(--color-muted-foreground)] transition group-hover:text-[color:var(--color-foreground)]" />
+        <CopyIcon className="h-4 w-4 shrink-0 text-[color:var(--color-muted-foreground)] transition group-hover:text-[color:var(--color-foreground)]" />
       )}
     </button>
   );
