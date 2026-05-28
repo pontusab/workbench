@@ -3,9 +3,10 @@
  *
  * Three modes:
  *
- * - Default (adapter consumers): no base is set, the dashboard uses relative
- *   `./api/*` paths, and the `<base href>` injected by the host server makes
- *   them resolve correctly against the mount path.
+ * - Default (adapter consumers): derive a clean absolute URL from the
+ *   `<base href>` injected by the host server. This keeps requests mounted at
+ *   the same dashboard path without resolving relative fetches against a
+ *   credentialed document URL.
  * - Host-injected (Tauri desktop): the host page sets
  *   `window.__WORKBENCH_RUNTIME__ = { apiBase: "http://127.0.0.1:54321" }`
  *   before the React tree mounts. Reading the global at request time means
@@ -41,7 +42,7 @@ export function apiBase(): string {
   if (typeof window !== "undefined" && window.__WORKBENCH_RUNTIME__?.apiBase) {
     return stripTrailingSlash(window.__WORKBENCH_RUNTIME__.apiBase);
   }
-  return "";
+  return defaultApiBase();
 }
 
 /**
@@ -67,4 +68,22 @@ export function getConfigUrl(): string {
 
 function stripTrailingSlash(s: string): string {
   return s.endsWith("/") ? s.slice(0, -1) : s;
+}
+
+function defaultApiBase(): string {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return "";
+  }
+
+  const href = document.querySelector("base")?.getAttribute("href");
+  if (!href) return "";
+
+  try {
+    const url = new URL(href, window.location.origin);
+    url.username = "";
+    url.password = "";
+    return stripTrailingSlash(url.toString());
+  } catch {
+    return "";
+  }
 }

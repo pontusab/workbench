@@ -39,15 +39,15 @@ export class QueueManager {
     max: 100, // Max 100 entries
     ttl: 1000 * 60, // Default 1 minute TTL
     allowStale: false, // Don't return stale entries
-    updateAgeOnGet: true, // Reset TTL on access
+    updateAgeOnGet: false, // Age snapshots from computation time, not reads
   });
 
   private readonly CACHE_TTL = {
-    metrics: 5 * 60 * 1000, // 5 minutes - metrics are expensive
-    overview: 2 * 60 * 1000, // 2 minutes
-    queues: 2 * 60 * 1000, // 2 minutes
+    metrics: 30 * 1000, // Match 30s UI polling for fresh dashboard metrics
+    overview: 5 * 1000, // Match overview polling
+    queues: 5 * 1000, // Match queue-count polling
     flows: 2 * 60 * 1000, // 2 minutes
-    activity: 5 * 60 * 1000, // 5 minutes - activity timeline
+    activity: 30 * 1000, // Match activity timeline polling
   };
 
   constructor(queues: Queue[], tagFields: string[] = []) {
@@ -443,17 +443,17 @@ export class QueueManager {
       return this.withTimeout(
         (async () => {
           const now = Date.now();
-          const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
+          const hourMs = 60 * 60 * 1000;
+          const bucketCount = 24;
+          const currentHour = Math.floor(now / hourMs) * hourMs;
+          const twentyFourHoursAgo = currentHour - (bucketCount - 1) * hourMs;
 
           // Initialize hourly buckets for last 24 hours
           const createEmptyBuckets = (): HourlyBucket[] => {
             const buckets: HourlyBucket[] = [];
-            const startHour =
-              Math.floor(twentyFourHoursAgo / (60 * 60 * 1000)) *
-              (60 * 60 * 1000);
-            for (let i = 0; i < 24; i++) {
+            for (let i = 0; i < bucketCount; i++) {
               buckets.push({
-                hour: startHour + i * 60 * 60 * 1000,
+                hour: twentyFourHoursAgo + i * hourMs,
                 completed: 0,
                 failed: 0,
                 avgDuration: 0,
@@ -476,8 +476,8 @@ export class QueueManager {
           for (const queueName of this.queues.keys()) {
             queueMetricsMap.set(queueName, {
               buckets: createEmptyBuckets(),
-              durations: Array.from({ length: 24 }, () => []),
-              waitTimes: Array.from({ length: 24 }, () => []),
+              durations: Array.from({ length: bucketCount }, () => []),
+              waitTimes: Array.from({ length: bucketCount }, () => []),
             });
           }
 
@@ -554,10 +554,9 @@ export class QueueManager {
                 continue;
 
               const bucketIndex = Math.floor(
-                (job.finishedOn - (metrics.buckets[0]?.hour || 0)) /
-                  (60 * 60 * 1000),
+                (job.finishedOn - (metrics.buckets[0]?.hour || 0)) / hourMs,
               );
-              if (bucketIndex >= 0 && bucketIndex < 24) {
+              if (bucketIndex >= 0 && bucketIndex < metrics.buckets.length) {
                 metrics.buckets[bucketIndex].completed++;
 
                 const duration = job.processedOn
@@ -599,10 +598,9 @@ export class QueueManager {
                 continue;
 
               const bucketIndex = Math.floor(
-                (job.finishedOn - (metrics.buckets[0]?.hour || 0)) /
-                  (60 * 60 * 1000),
+                (job.finishedOn - (metrics.buckets[0]?.hour || 0)) / hourMs,
               );
-              if (bucketIndex >= 0 && bucketIndex < 24) {
+              if (bucketIndex >= 0 && bucketIndex < metrics.buckets.length) {
                 metrics.buckets[bucketIndex].failed++;
               }
 
@@ -629,7 +627,7 @@ export class QueueManager {
 
           // Calculate averages for each bucket
           for (const metrics of queueMetricsMap.values()) {
-            for (let i = 0; i < 24; i++) {
+            for (let i = 0; i < bucketCount; i++) {
               const durations = metrics.durations[i];
               const waitTimes = metrics.waitTimes[i];
               if (durations.length > 0) {
@@ -651,16 +649,16 @@ export class QueueManager {
           // Build aggregate metrics
           const aggregateBuckets = createEmptyBuckets();
           const aggregateDurations: number[][] = Array.from(
-            { length: 24 },
+            { length: bucketCount },
             () => [],
           );
           const aggregateWaitTimes: number[][] = Array.from(
-            { length: 24 },
+            { length: bucketCount },
             () => [],
           );
 
           for (const metrics of queueMetricsMap.values()) {
-            for (let i = 0; i < 24; i++) {
+            for (let i = 0; i < bucketCount; i++) {
               aggregateBuckets[i].completed += metrics.buckets[i].completed;
               aggregateBuckets[i].failed += metrics.buckets[i].failed;
               aggregateDurations[i].push(...metrics.durations[i]);
@@ -669,7 +667,7 @@ export class QueueManager {
           }
 
           // Calculate aggregate averages
-          for (let i = 0; i < 24; i++) {
+          for (let i = 0; i < bucketCount; i++) {
             if (aggregateDurations[i].length > 0) {
               aggregateBuckets[i].avgDuration = Math.round(
                 aggregateDurations[i].reduce((a, b) => a + b, 0) /
@@ -740,9 +738,10 @@ export class QueueManager {
                           allWaitTimes.length,
                       )
                     : 0,
-                throughputPerHour: Math.round(
-                  (totalCompleted + totalFailed) / 24,
-                ),
+                throughputPerHour:
+                  Math.round(
+                    ((totalCompleted + totalFailed) / bucketCount) * 100,
+                  ) / 100,
               },
             },
             slowestJobs,

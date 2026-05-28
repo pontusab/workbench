@@ -15,11 +15,15 @@ const queryClient = new QueryClient({
 
 // Get base path from the <base> tag or default to "/"
 function getBasePath() {
-  if (typeof document !== "undefined") {
-    const base = document.querySelector("base");
-    if (base?.href) {
-      const url = new URL(base.href);
-      return url.pathname.replace(/\/$/, "") || "/";
+  if (typeof document !== "undefined" && typeof window !== "undefined") {
+    const href = document.querySelector("base")?.getAttribute("href");
+    if (href) {
+      try {
+        const url = new URL(href, window.location.origin);
+        return url.pathname.replace(/\/$/, "") || "/";
+      } catch {
+        return "/";
+      }
     }
   }
   return "/";
