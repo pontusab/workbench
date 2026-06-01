@@ -2,6 +2,7 @@ import {
   Bell,
   CheckCircle2,
   Loader2,
+  type LucideIcon,
   MessageSquare,
   Plus,
   Send,
@@ -101,26 +102,42 @@ const DESTINATION_TYPES: {
   value: AlertContactPointPreset;
   label: string;
   description: string;
+  urlLabel: string;
+  urlPlaceholder: string;
+  icon: LucideIcon;
 }[] = [
   {
     value: "slack",
     label: "Slack",
     description: "Incoming webhook to a channel",
+    urlLabel: "Slack webhook URL",
+    urlPlaceholder: "https://hooks.slack.com/services/...",
+    icon: Bell,
   },
   {
     value: "discord",
     label: "Discord",
     description: "Webhook to a Discord channel",
+    urlLabel: "Discord webhook URL",
+    urlPlaceholder: "https://discord.com/api/webhooks/...",
+    icon: MessageSquare,
   },
   {
     value: "webhook",
     label: "Webhook",
     description: "Custom HTTPS endpoint (JSON payload)",
+    urlLabel: "Webhook URL",
+    urlPlaceholder: "https://...",
+    icon: Webhook,
   },
 ];
 
+function destinationType(preset: AlertContactPointPreset) {
+  return DESTINATION_TYPES.find((d) => d.value === preset);
+}
+
 function destinationTypeLabel(preset: AlertContactPointPreset): string {
-  return DESTINATION_TYPES.find((d) => d.value === preset)?.label ?? preset;
+  return destinationType(preset)?.label ?? preset;
 }
 
 function triggerLabel(trigger: AlertTrigger): string {
@@ -214,7 +231,7 @@ function ContactPointForm({
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground mt-1">
-              {DESTINATION_TYPES.find((d) => d.value === preset)?.description}
+              {destinationType(preset)?.description}
             </p>
           </div>
           {preset === "slack" && (
@@ -281,21 +298,13 @@ function ContactPointForm({
           )}
           <div>
             <p className="text-xs text-muted-foreground mb-1">
-              {preset === "slack"
-                ? "Slack webhook URL"
-                : preset === "discord"
-                  ? "Discord webhook URL"
-                  : "Webhook URL"}
+              {destinationType(preset)?.urlLabel ?? "Webhook URL"}
               {initial ? " (leave blank to keep current)" : ""}
             </p>
             <Input
               type="url"
               placeholder={
-                preset === "slack"
-                  ? "https://hooks.slack.com/services/..."
-                  : preset === "discord"
-                    ? "https://discord.com/api/webhooks/..."
-                    : "https://..."
+                destinationType(preset)?.urlPlaceholder ?? "https://..."
               }
               value={url}
               onChange={(e) => setUrl(e.target.value)}
@@ -611,8 +620,7 @@ function SetupGuide({
 }
 
 function DestinationIcon({ preset }: { preset: AlertContactPointPreset }) {
-  const Icon =
-    preset === "slack" ? Bell : preset === "discord" ? MessageSquare : Webhook;
+  const Icon = destinationType(preset)?.icon ?? Webhook;
   return (
     <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-muted">
       <Icon className="size-4 text-muted-foreground" />
