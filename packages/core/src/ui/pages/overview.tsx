@@ -132,6 +132,10 @@ export function OverviewPage({
   const errorSparkline = buckets.map((b) =>
     b.completed + b.failed > 0 ? b.failed / (b.completed + b.failed) : 0,
   );
+  const hasRecentActivity =
+    metricsLoading ||
+    (summary?.totalCompleted ?? 0) > 0 ||
+    (summary?.totalFailed ?? 0) > 0;
 
   return (
     <div className="space-y-6">
@@ -241,7 +245,8 @@ export function OverviewPage({
 
       {overview.activeJobs === 0 &&
         overview.failedJobs === 0 &&
-        overview.totalJobs === 0 && (
+        overview.totalJobs === 0 &&
+        !hasRecentActivity && (
           <div className="flex items-center gap-2 border border-dashed bg-card px-4 py-3 text-sm text-muted-foreground">
             <CheckCircle2 className="h-4 w-4 text-chart-success shrink-0" />
             All queues are empty — enqueue a test job from the Test page to see
