@@ -67,5 +67,8 @@
     "directory": "packages/nestjs"
   },
   "homepage": "https://getworkbench.dev",
+  "bugs": {
+    "url": "https://github.com/pontusab/workbench/issues"
+  },
   "license": "MIT"
 }
