@@ -1,7 +1,7 @@
 {
   "name": "@getworkbench/fastify",
   "version": "0.9.1",
-  "description": "Fastify adapter for Workbench — modern BullMQ dashboard, drop-in alternative to `@bull-board/fastify`.",
+  "description": "Fastify adapter for Workbench \u2014 modern BullMQ dashboard, drop-in alternative to `@bull-board/fastify`.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -62,5 +62,8 @@
     "directory": "packages/fastify"
   },
   "homepage": "https://getworkbench.dev",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pontusab/workbench/issues"
+  }
 }

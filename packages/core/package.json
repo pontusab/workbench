@@ -1,7 +1,7 @@
 {
   "name": "@getworkbench/core",
   "version": "0.9.1",
-  "description": "Core of Workbench — QueueManager, API router, and bundled UI. Modern alternative to `@bull-board/api`.",
+  "description": "Core of Workbench \u2014 QueueManager, API router, and bundled UI. Modern alternative to `@bull-board/api`.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -113,5 +113,8 @@
     "directory": "packages/core"
   },
   "homepage": "https://getworkbench.dev",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pontusab/workbench/issues"
+  }
 }
