@@ -1,7 +1,7 @@
 {
   "name": "@getworkbench/cli",
   "version": "0.5.0",
-  "description": "One-command setup for Workbench — scaffold a bull-board replacement with `npx @getworkbench/cli init`.",
+  "description": "One-command setup for Workbench \u2014 scaffold a bull-board replacement with `npx @getworkbench/cli init`.",
   "type": "module",
   "bin": {
     "workbench": "./dist/index.js",
@@ -58,5 +58,8 @@
     "directory": "packages/cli"
   },
   "homepage": "https://getworkbench.dev",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pontusab/workbench/issues"
+  }
 }

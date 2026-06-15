@@ -1,7 +1,7 @@
 {
   "name": "@getworkbench/mcp",
   "version": "0.5.1",
-  "description": "Model Context Protocol server for Workbench — let LLMs inspect and operate BullMQ queues. Alternative to wiring bull-board into your AI workflow.",
+  "description": "Model Context Protocol server for Workbench \u2014 let LLMs inspect and operate BullMQ queues. Alternative to wiring bull-board into your AI workflow.",
   "type": "module",
   "bin": {
     "workbench-mcp": "./dist/index.js"
@@ -58,5 +58,8 @@
     "directory": "packages/mcp"
   },
   "homepage": "https://getworkbench.dev",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pontusab/workbench/issues"
+  }
 }
