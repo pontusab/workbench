@@ -1,7 +1,7 @@
 {
   "name": "@getworkbench/next",
   "version": "0.9.1",
-  "description": "Next.js App Router adapter for Workbench — modern BullMQ dashboard with broader framework coverage than bull-board.",
+  "description": "Next.js App Router adapter for Workbench \u2014 modern BullMQ dashboard with broader framework coverage than bull-board.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -66,5 +66,8 @@
     "directory": "packages/next"
   },
   "homepage": "https://getworkbench.dev",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pontusab/workbench/issues"
+  }
 }

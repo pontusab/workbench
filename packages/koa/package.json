@@ -1,7 +1,7 @@
 {
   "name": "@getworkbench/koa",
   "version": "0.9.1",
-  "description": "Koa adapter for Workbench — modern BullMQ dashboard, drop-in alternative to `@bull-board/koa`.",
+  "description": "Koa adapter for Workbench \u2014 modern BullMQ dashboard, drop-in alternative to `@bull-board/koa`.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -63,5 +63,8 @@
     "directory": "packages/koa"
   },
   "homepage": "https://getworkbench.dev",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pontusab/workbench/issues"
+  }
 }
