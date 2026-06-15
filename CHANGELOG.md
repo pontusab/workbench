@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`@getworkbench/nestjs`** CJS output (`dist/index.cjs`) via tsup, with a `require` condition in `exports`. Projects using NestJS with `"module": "commonjs"` (the default) can now import `@getworkbench/nestjs` without `ERR_PACKAGE_PATH_NOT_EXPORTED`.
+
 ## [0.9.1] - 2026-06-01
 
 ### Added
