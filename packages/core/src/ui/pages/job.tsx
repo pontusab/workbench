@@ -4,6 +4,7 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Clock,
   Copy,
@@ -30,8 +31,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { JobStatus } from "@/core/types";
+import {
   useJob,
   useJobLogs,
+  useJobs,
   usePromoteJob,
   useRemoveJob,
   useRetryJob,
@@ -71,6 +79,85 @@ export function JobPage({
   const removeMutation = useRemoveJob();
   const promoteMutation = usePromoteJob();
   const [copied, setCopied] = React.useState(false);
+
+  // Prev/next navigation: page through the same job list (and filter/sort)
+  // the user was viewing on the queue page, without going back to the list.
+  const listStatus =
+    search.status && search.status !== "all"
+      ? (search.status as JobStatus)
+      : undefined;
+  const {
+    data: listData,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useJobs(queueName, listStatus, search.sort);
+  const jobList = React.useMemo(
+    () => listData?.pages.flatMap((page) => page.data) ?? [],
+    [listData],
+  );
+  const currentIndex = jobList.findIndex((j) => j.id === jobId);
+  const prevJob = currentIndex > 0 ? jobList[currentIndex - 1] : undefined;
+  const nextJob =
+    currentIndex >= 0 && currentIndex < jobList.length - 1
+      ? jobList[currentIndex + 1]
+      : undefined;
+
+  const goToJob = React.useCallback(
+    (targetId: string | undefined) => {
+      if (!targetId) return;
+      navigate({
+        to: "/queues/$queueName/jobs/$jobId",
+        params: { queueName, jobId: targetId },
+        search,
+      });
+    },
+    [navigate, queueName, search],
+  );
+
+  // When sitting on the last loaded job, pull the next page so the "next"
+  // button becomes available instead of dead-ending mid-queue.
+  React.useEffect(() => {
+    if (
+      currentIndex >= 0 &&
+      currentIndex >= jobList.length - 1 &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage();
+    }
+  }, [
+    currentIndex,
+    jobList.length,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
+
+  // Left/right arrow keys page between jobs, matching the on-screen buttons.
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.key === "ArrowLeft" && prevJob) {
+        e.preventDefault();
+        goToJob(prevJob.id);
+      } else if (e.key === "ArrowRight" && nextJob) {
+        e.preventDefault();
+        goToJob(nextJob.id);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [prevJob, nextJob, goToJob]);
 
   const actionLoading =
     retryMutation.isPending ||
@@ -193,6 +280,38 @@ export function JobPage({
         {/* Title Row */}
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex items-center gap-3">
+            <div className="flex items-center">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => goToJob(prevJob?.id)}
+                    disabled={!prevJob}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="sr-only">Previous job</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Previous job (←)</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 border-l-0"
+                    onClick={() => goToJob(nextJob?.id)}
+                    disabled={!nextJob}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                    <span className="sr-only">Next job</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Next job (→)</TooltipContent>
+              </Tooltip>
+            </div>
             <div className="flex items-center gap-2  bg-muted px-2.5 py-1 text-sm font-medium">
               {job.name}
             </div>

@@ -104,6 +104,21 @@ export const jobSearchSchema = z.object({
   tab: z
     .enum(["payload", "output", "error", "retries", "timeline", "logs"])
     .optional(),
+  // List context for prev/next navigation between jobs — mirrors the queue
+  // list's status filter and sort so paging matches the view we came from.
+  status: z
+    .enum([
+      "all",
+      "active",
+      "waiting",
+      "waiting-children",
+      "prioritized",
+      "completed",
+      "failed",
+      "delayed",
+    ])
+    .optional(),
+  sort: z.string().optional(),
 });
 
 export type JobSearch = z.infer<typeof jobSearchSchema>;
@@ -512,6 +527,7 @@ function QueueRoute() {
           navigate({
             to: "/queues/$queueName/jobs/$jobId",
             params: { queueName, jobId },
+            search: { status: search.status, sort: search.sort },
           })
         }
       />
