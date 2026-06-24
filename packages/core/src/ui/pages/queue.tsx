@@ -39,6 +39,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { JobInfo, JobStatus } from "@/core/types";
 import {
   useBulkDelete,
@@ -51,7 +56,6 @@ import {
   useRefresh,
   useResumeQueue,
 } from "@/lib/hooks";
-import { truncate } from "@/lib/utils";
 import type { QueueSearch } from "@/router";
 
 interface QueuePageProps {
@@ -523,12 +527,22 @@ function JobRow({ job, selected, onSelect, onClick }: JobRowProps) {
           <Checkbox checked={selected} />
         </div>
         <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <div className="min-w-0">
-          <div className="truncate font-medium">{job.name}</div>
-          <div className="truncate font-mono text-xs text-muted-foreground">
-            {truncate(job.id, 24)}
-          </div>
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="min-w-0">
+              <div className="truncate font-medium">{job.name}</div>
+              <div className="truncate font-mono text-xs text-muted-foreground">
+                {job.id}
+              </div>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent align="start" className="max-w-[28rem]">
+            <div className="font-medium">{job.name}</div>
+            <div className="break-all font-mono text-muted-foreground">
+              {job.id}
+            </div>
+          </TooltipContent>
+        </Tooltip>
       </div>
       <div className="col-span-2">
         <StatusBadge status={job.status} duration={job.duration} />
