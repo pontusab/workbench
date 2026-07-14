@@ -5,11 +5,14 @@ import { defineConfig } from "vite";
 /**
  * Vite config for the desktop app.
  *
- * The dashboard UI is imported from `@getworkbench/core/ui` (source files in
- * `packages/core/src/ui`). Those source files use `@/...` and `@/core/...`
- * imports internally, so we replicate the core package's alias setup here.
- * The desktop's own source files use **relative imports** (no `@/` prefix)
- * so the alias map stays unambiguous.
+ * The dashboard UI is imported from `@getworkbench/core/ui`. The package's
+ * published export points at the built `dist/ui-lib` bundle, so we alias it
+ * to the source entry (`packages/core/src/ui`) here — the desktop always
+ * builds the dashboard from source and gets HMR into it during dev. Those
+ * source files use `@/...` and `@/core/...` imports internally, so we also
+ * replicate the core package's alias setup. The desktop's own source files
+ * use **relative imports** (no `@/` prefix) so the alias map stays
+ * unambiguous.
  */
 export default defineConfig({
   plugins: [react()],
@@ -30,6 +33,10 @@ export default defineConfig({
   envPrefix: ["VITE_", "TAURI_"],
   resolve: {
     alias: [
+      {
+        find: "@getworkbench/core/ui",
+        replacement: resolve(__dirname, "../../packages/core/src/ui/index.ts"),
+      },
       // Note: order matters. The more-specific `@/core` alias must come
       // before the generic `@/` to win for paths like `@/core/types`.
       {
