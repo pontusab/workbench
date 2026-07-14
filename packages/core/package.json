@@ -15,10 +15,11 @@
       "import": "./dist/hono.js"
     },
     "./ui": {
-      "types": "./src/ui/index.ts",
-      "default": "./src/ui/index.ts"
+      "types": "./dist/ui-lib/index.d.ts",
+      "import": "./dist/ui-lib/index.js",
+      "default": "./dist/ui-lib/index.js"
     },
-    "./ui/styles.css": "./src/ui/styles/globals.css"
+    "./ui/styles.css": "./dist/ui-lib/styles.css"
   },
   "files": [
     "dist",
@@ -26,9 +27,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "bun run clean && bun run build:ui && bun run build:lib",
+    "build": "bun run clean && bun run build:ui && bun run build:ui-lib && bun run build:lib",
     "build:lib": "tsup",
     "build:ui": "vite build",
+    "build:ui-lib": "vite build --config vite.lib.config.ts",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
@@ -87,7 +89,17 @@
   },
   "peerDependencies": {
     "bullmq": ">=5.0.0",
-    "ioredis": ">=5.0.0"
+    "ioredis": ">=5.0.0",
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18"
