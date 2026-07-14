@@ -25,14 +25,21 @@ function getBasePath() {
   return "/";
 }
 
-// Create router with detected base path
-const router = createAppRouter(getBasePath());
+// Created lazily on first render: TanStack's createRouter touches
+// window.history, so building it at module scope would crash any non-browser
+// import of the embeddable `@getworkbench/core/ui` entry (SSR frameworks
+// evaluate the module on the server before rendering client-side).
+let router: ReturnType<typeof createAppRouter> | undefined;
+function getRouter() {
+  router ??= createAppRouter(getBasePath());
+  return router;
+}
 
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider delayDuration={0}>
-        <RouterProvider router={router} />
+        <RouterProvider router={getRouter()} />
       </TooltipProvider>
     </QueryClientProvider>
   );
