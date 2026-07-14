@@ -172,16 +172,9 @@ export function ThroughputChart({
               />
             </pattern>
           </defs>
-          <Area
-            type="monotone"
-            dataKey="completed"
-            name="Completed"
-            stackId="1"
-            stroke="var(--color-completed)"
-            fill={`url(#${chartId}-completedGradient)`}
-            strokeWidth={2}
-            dot={false}
-          />
+          {/* Failed renders first so it stacks at the bottom: with zero
+              failures its stroke is a flat line on the axis instead of
+              tracing the top of the completed area in red (#30). */}
           <Area
             type="monotone"
             dataKey="failed"
@@ -189,6 +182,16 @@ export function ThroughputChart({
             stackId="1"
             stroke="var(--color-failed)"
             fill={`url(#${chartId}-failedPattern)`}
+            strokeWidth={2}
+            dot={false}
+          />
+          <Area
+            type="monotone"
+            dataKey="completed"
+            name="Completed"
+            stackId="1"
+            stroke="var(--color-completed)"
+            fill={`url(#${chartId}-completedGradient)`}
             strokeWidth={2}
             dot={false}
           />

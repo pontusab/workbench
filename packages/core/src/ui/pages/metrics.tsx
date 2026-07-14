@@ -455,21 +455,9 @@ export function MetricsPage() {
                   />
                 </pattern>
               </defs>
-              <Area
-                type="monotone"
-                dataKey="completed"
-                name="Completed"
-                stackId="1"
-                stroke="var(--color-completed)"
-                fill="url(#completedGradient)"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{
-                  r: 4,
-                  fill: "var(--color-completed)",
-                  stroke: "none",
-                }}
-              />
+              {/* Failed renders first so it stacks at the bottom: with zero
+                  failures its stroke is a flat line on the axis instead of
+                  tracing the top of the completed area in red (#30). */}
               <Area
                 type="monotone"
                 dataKey="failed"
@@ -482,6 +470,21 @@ export function MetricsPage() {
                 activeDot={{
                   r: 4,
                   fill: "var(--color-failed)",
+                  stroke: "none",
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="completed"
+                name="Completed"
+                stackId="1"
+                stroke="var(--color-completed)"
+                fill="url(#completedGradient)"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{
+                  r: 4,
+                  fill: "var(--color-completed)",
                   stroke: "none",
                 }}
               />
