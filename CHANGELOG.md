@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`@getworkbench/core`** The `./ui` and `./ui/styles.css` exports pointed at `src/` files that are not included in the published tarball, so `import "@getworkbench/core/ui"` could never resolve (#32). The entrypoint is now built into the package as an ESM bundle with type declarations and a compiled Tailwind stylesheet; embedding apps only need `react`/`react-dom` (new optional peer dependencies). The dashboard router is also created lazily so the module can be imported outside the browser (e.g. by SSR frameworks such as TanStack Start).
+
 ## [0.9.1] - 2026-06-01
 
 ### Added
