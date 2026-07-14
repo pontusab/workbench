@@ -68,7 +68,7 @@ Visit `http://localhost:3000/<mount>`.
 
 | Option     | Type                        | Description                                            |
 | ---------- | --------------------------- | ------------------------------------------------------ |
-| `queues`   | `Queue[]`                   | BullMQ `Queue` instances to display. Required.         |
+| `queues`   | `Queue[] \| Promise<Queue[]>` | BullMQ `Queue` instances to display, or a promise resolving to them. Required. |
 | `auth`     | `{ username, password }`    | Basic auth credentials. Strongly recommended in prod.  |
 | `title`    | `string`                    | Dashboard title. Default: `"Workbench"`.               |
 | `logo`     | `string`                    | Logo URL to display in the nav.                        |

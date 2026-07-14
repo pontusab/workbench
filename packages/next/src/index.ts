@@ -12,6 +12,16 @@ export interface WorkbenchHandlers {
 }
 
 /**
+ * Same as {@link WorkbenchOptions}, but `queues` may also be a promise so
+ * apps that collect their queues asynchronously can pass the promise
+ * directly instead of blocking module evaluation.
+ */
+export interface NextWorkbenchOptions extends Omit<WorkbenchOptions, "queues"> {
+  /** BullMQ Queue instances to display, or a promise resolving to them */
+  queues?: Queue[] | Promise<Queue[]>;
+}
+
+/**
  * Mount the Workbench dashboard on a Next.js App Router catch-all route.
  *
  * Place this in `app/<mount>/[[...workbench]]/route.ts` and re-export the
@@ -39,11 +49,22 @@ export interface WorkbenchHandlers {
  *   },
  * });
  * ```
+ *
+ * `queues` also accepts a `Promise<Queue[]>` for apps that discover their
+ * queues asynchronously — pass the promise as-is and requests wait for it:
+ *
+ * @example
+ * ```ts
+ * export const { GET, POST, PUT, PATCH, DELETE } = workbench({
+ *   queues: loadQueues(), // () => Promise<Queue[]>
+ *   basePath: "/admin/jobs",
+ * });
+ * ```
  */
 export function workbench(
-  options: WorkbenchOptions | Queue[],
+  options: NextWorkbenchOptions | Queue[],
 ): WorkbenchHandlers {
-  const { fetch } = createFetchHandler(options);
+  const fetch = createHandler(options);
   return {
     GET: fetch,
     POST: fetch,
@@ -51,6 +72,33 @@ export function workbench(
     PATCH: fetch,
     DELETE: fetch,
   };
+}
+
+function createHandler(
+  options: NextWorkbenchOptions | Queue[],
+): NextRouteHandler {
+  // Synchronous queues: build the handler eagerly, exactly as before.
+  if (Array.isArray(options) || !isThenable(options.queues)) {
+    return createFetchHandler(options as WorkbenchOptions | Queue[]).fetch;
+  }
+
+  const handlerPromise = options.queues.then(
+    (queues) => createFetchHandler({ ...options, queues }).fetch,
+  );
+  // Keep a rejected queues promise from becoming an unhandled rejection that
+  // can take down the server before any request lands — every request below
+  // still surfaces the original error.
+  handlerPromise.catch(() => {});
+
+  return async (req) => (await handlerPromise)(req);
+}
+
+function isThenable(value: unknown): value is Promise<Queue[]> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as PromiseLike<unknown>).then === "function"
+  );
 }
 
 export type { WorkbenchOptions } from "@getworkbench/core";
