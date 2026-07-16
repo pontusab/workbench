@@ -39,14 +39,17 @@ export class QueueManager {
     max: 100, // Max 100 entries
     ttl: 1000 * 60, // Default 1 minute TTL
     allowStale: false, // Don't return stale entries
-    updateAgeOnGet: true, // Reset TTL on access
+    // Never reset TTL on access: the dashboard polls these endpoints faster
+    // than their TTLs, so age-on-get pinned the first snapshot forever and
+    // pages never updated live (#26).
+    updateAgeOnGet: false,
   });
 
   private readonly CACHE_TTL = {
     metrics: 5 * 60 * 1000, // 5 minutes - metrics are expensive
     overview: 2 * 60 * 1000, // 2 minutes
     queues: 2 * 60 * 1000, // 2 minutes
-    flows: 2 * 60 * 1000, // 2 minutes
+    flows: 5 * 1000, // matches the flows page's 5s poll (#26)
     activity: 5 * 60 * 1000, // 5 minutes - activity timeline
   };
 
@@ -2178,14 +2181,16 @@ export class QueueManager {
     return this.cached(`flows:${limit}`, this.CACHE_TTL.flows, async () => {
       const queueEntries = Array.from(this.queues.entries());
 
-      // Check counts first to skip empty queues
+      // Check counts first to skip empty queues. Any state counts: the job
+      // scan below deliberately includes completed/failed/delayed jobs, so
+      // gating on active-ish states only made finished flows disappear from
+      // the list as soon as their queues went idle (#26).
       const queueChecks = await Promise.all(
         queueEntries.map(async ([queueName, queue]) => {
           const counts = await this.getCachedJobCounts(queue);
-          const hasRelevantJobs =
-            (counts.waiting || 0) > 0 ||
-            (counts["waiting-children"] || 0) > 0 ||
-            (counts.active || 0) > 0;
+          const hasRelevantJobs = Object.values(counts).some(
+            (count) => (count || 0) > 0,
+          );
           return { queueName, queue, hasRelevantJobs };
         }),
       );
