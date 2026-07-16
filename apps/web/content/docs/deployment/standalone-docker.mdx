@@ -31,7 +31,13 @@ docker build -f apps/standalone/Dockerfile -t workbench-standalone .
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `REDIS_URL` | — | Redis connection URL |
+| `REDIS_URL` | — | Redis connection URL. Ignored when `REDIS_SENTINELS` is set |
+| `REDIS_SENTINELS` | — | Comma-separated Redis Sentinel `host:port` list (port defaults to `26379`) |
+| `REDIS_SENTINEL_NAME` | — | Sentinel master group name (e.g. `mymaster`). Required with `REDIS_SENTINELS` |
+| `REDIS_SENTINEL_PASSWORD` | — | Password for the Sentinel nodes themselves |
+| `REDIS_USERNAME` | — | Redis server username (ACL) |
+| `REDIS_PASSWORD` | — | Redis server password |
+| `REDIS_DB` | `0` | Redis database index |
 | `QUEUE_NAMES` | `default` | Comma-separated queue names |
 | `PORT` | `3000` | HTTP port |
 | `BASE_PATH` | `/` | Dashboard base path |
@@ -43,6 +49,20 @@ docker build -f apps/standalone/Dockerfile -t workbench-standalone .
 | `TAGS` | — | Comma-separated tag fields |
 
 Unauthenticated mode is allowed when `AUTH_USERNAME` and `AUTH_PASSWORD` are unset — use only for local development.
+
+## Redis Sentinel
+
+Point the dashboard at a Sentinel-managed deployment instead of a single instance:
+
+```bash
+docker run --rm -p 3000:3000 \
+  -e REDIS_SENTINELS=sentinel-1:26379,sentinel-2:26379,sentinel-3:26379 \
+  -e REDIS_SENTINEL_NAME=mymaster \
+  -e QUEUE_NAMES=default \
+  ghcr.io/pontusab/workbench-standalone
+```
+
+ioredis resolves the current master through the listed sentinels and follows failovers automatically. Use `REDIS_PASSWORD` for the master and `REDIS_SENTINEL_PASSWORD` if the sentinel nodes themselves require auth.
 
 ## Health check
 
