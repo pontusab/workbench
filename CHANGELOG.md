@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`@getworkbench/core`** The flows page now updates live (#26). The server cached the flows list for 2 minutes and reset the entry's age on every read while the UI polls every 5 seconds, pinning the first (usually empty) snapshot indefinitely; and the queue prefilter dropped finished flows from the list as soon as their queues went idle. In-flight flows now appear within one poll of creation and completed flows remain listed.
+
 ## [0.9.1] - 2026-06-01
 
 ### Added
