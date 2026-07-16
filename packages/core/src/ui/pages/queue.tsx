@@ -528,6 +528,14 @@ function JobRow({ job, selected, onSelect, onClick }: JobRowProps) {
           <div className="truncate font-mono text-xs text-muted-foreground">
             {truncate(job.id, 24)}
           </div>
+          {job.status === "failed" && job.failedReason && (
+            <div
+              className="truncate text-xs text-status-error"
+              title={job.failedReason}
+            >
+              {truncate(job.failedReason, 80)}
+            </div>
+          )}
         </div>
       </div>
       <div className="col-span-2">
