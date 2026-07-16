@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`@getworkbench/core`** The Redis-backed alert store built its client by spreading the first queue's connection into `new Redis({...})`. When that connection was a live ioredis instance the result was a client with default options — dialing `localhost:6379` instead of the queue's server — with no `error` listener, producing an endless `[ioredis] Unhandled error event: ECONNREFUSED` flood on startup (#33) or, when something else listened locally, silently persisting alert config to the wrong Redis. Live `Redis`/`Cluster` instances are now `duplicate()`d to inherit the exact connection config, and the store's client logs a single warning and retries quietly instead of flooding.
+
 ## [0.9.1] - 2026-06-01
 
 ### Added

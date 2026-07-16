@@ -1,5 +1,5 @@
 import type { RedisOptions } from "bullmq";
-import { Redis } from "ioredis";
+import { type Cluster, Redis } from "ioredis";
 import type {
   AlertContactPoint,
   AlertRule,
@@ -8,16 +8,59 @@ import type {
 } from "./types";
 
 export interface RedisAlertStoreOptions {
-  connection: string | RedisOptions;
+  /**
+   * Anything BullMQ accepts as a queue connection: a URL string, ioredis
+   * options (optionally with `url`), or a live `Redis`/`Cluster` instance.
+   */
+  connection: string | RedisOptions | Redis | Cluster;
   /** BullMQ-style prefix; keys are `${prefix}:workbench:alerts:*` */
   prefix?: string;
   /** Imported once when Redis has no stored config yet */
   seed?: Pick<AlertsOptions, "contactPoints" | "rules">;
 }
 
-function createRedisClient(connection: string | RedisOptions): Redis {
+/** A live ioredis client or cluster (BullMQ also accepts these). */
+function isRedisInstance(
+  connection: RedisAlertStoreOptions["connection"],
+): connection is Redis | Cluster {
+  return (
+    typeof connection === "object" &&
+    connection !== null &&
+    typeof (connection as Redis).duplicate === "function"
+  );
+}
+
+export function createRedisClient(
+  connection: RedisAlertStoreOptions["connection"],
+): Redis | Cluster {
+  const client = buildRedisClient(connection);
+  // ioredis emits `error` for every failed connect/retry; with no listener,
+  // each becomes an "Unhandled error event" console flood (and on modern
+  // Node an unhandled 'error' can crash the process). Alert persistence is
+  // non-critical: log the first failure and keep retrying quietly — the
+  // client recovers on its own once Redis is reachable.
+  let warned = false;
+  client.on("error", (err: Error) => {
+    if (warned) return;
+    warned = true;
+    console.warn(
+      `[workbench] Alert store Redis connection error (will keep retrying quietly): ${err.message}`,
+    );
+  });
+  return client;
+}
+
+function buildRedisClient(
+  connection: RedisAlertStoreOptions["connection"],
+): Redis | Cluster {
   if (typeof connection === "string") {
     return new Redis(connection, { maxRetriesPerRequest: null });
+  }
+  // A live client: duplicate it to inherit the exact connection config.
+  // Spreading an instance into `new Redis({...})` used to produce a client
+  // with default options (localhost:6379) pointing at the wrong server.
+  if (isRedisInstance(connection)) {
+    return connection.duplicate();
   }
   const { url, ...rest } = connection as RedisOptions & { url?: string };
   if (url) {
@@ -31,7 +74,7 @@ function createRedisClient(connection: string | RedisOptions): Redis {
  * Webhook URLs and rules created in the dashboard survive process restarts.
  */
 export class RedisAlertStore implements AlertStore {
-  private readonly client: Redis;
+  private readonly client: Redis | Cluster;
   private readonly contactPointsKey: string;
   private readonly rulesKey: string;
   private readonly seed?: Pick<AlertsOptions, "contactPoints" | "rules">;
