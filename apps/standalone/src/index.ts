@@ -1,13 +1,13 @@
 import { workbench } from "@getworkbench/bun";
 import { Queue } from "bullmq";
+import { connectionFromEnv, type RedisEnv } from "./connection";
 
 const queueNames = (Bun.env.QUEUE_NAMES || "default").split(",");
 
+const connection = connectionFromEnv(Bun.env as RedisEnv);
+
 const queues = queueNames.map(
-  (name) =>
-    new Queue(name.trim(), {
-      connection: { url: Bun.env.REDIS_URL! },
-    }),
+  (name) => new Queue(name.trim(), { connection }),
 );
 
 const handler = workbench({
