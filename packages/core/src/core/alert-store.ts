@@ -1,4 +1,7 @@
-import { RedisAlertStore } from "./redis-alert-store";
+import {
+  RedisAlertStore,
+  type RedisAlertStoreOptions,
+} from "./redis-alert-store";
 import type {
   AlertContactPoint,
   AlertContactPointPublic,
@@ -64,8 +67,7 @@ export function createAlertStore(
   }
 
   const connection = (ctx.queueConnection ?? ctx.redis) as
-    | string
-    | import("bullmq").RedisOptions
+    | RedisAlertStoreOptions["connection"]
     | undefined;
   if (connection) {
     return {
