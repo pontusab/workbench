@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **standalone** Redis Sentinel support (#44): set `REDIS_SENTINELS` (comma-separated `host:port` list) and `REDIS_SENTINEL_NAME` instead of `REDIS_URL`; ioredis resolves the current master through the sentinels and follows failovers. New optional `REDIS_SENTINEL_PASSWORD`, `REDIS_USERNAME`, `REDIS_PASSWORD`, and `REDIS_DB` variables apply to both connection modes.
+
 ## [0.9.1] - 2026-06-01
 
 ### Added
