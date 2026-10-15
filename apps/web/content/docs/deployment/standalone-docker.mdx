@@ -27,6 +27,17 @@ From the monorepo root:
 docker build -f apps/standalone/Dockerfile -t workbench-standalone .
 ```
 
+To build a specific architecture locally, use Buildx:
+
+```bash
+docker buildx build --platform linux/arm64 --load \
+  -f apps/standalone/Dockerfile -t workbench-standalone:arm64 .
+```
+
+## Supported platforms
+
+Published images are multi-arch: `linux/amd64` and `linux/arm64`. `docker pull` picks the matching architecture automatically on Intel/AMD servers, Apple Silicon, AWS Graviton, and other ARM hosts.
+
 ## Environment variables
 
 | Variable | Default | Description |
@@ -59,7 +70,7 @@ REDIS_URL=redis://localhost:6379 bun run --filter @getworkbench/standalone dev
 
 ## Image publishing
 
-GitHub Actions publishes versioned images to GHCR:
+GitHub Actions publishes versioned multi-arch images (`linux/amd64` and `linux/arm64`) to GHCR:
 
 ```text
 ghcr.io/<owner>/workbench-standalone:<version>

@@ -53,11 +53,18 @@ Unauthenticated mode is allowed when `AUTH_USERNAME` and `AUTH_PASSWORD` are uns
 
 ## Image Publishing
 
-GitHub Actions builds the image on PRs that touch the standalone app or its dependencies. Version tags publish to GHCR:
+GitHub Actions builds the image on PRs that touch the standalone app or its dependencies. Version tags publish a multi-arch image (`linux/amd64` and `linux/arm64`) to GHCR:
 
 ```text
 ghcr.io/<owner>/workbench-standalone:<version>
 ghcr.io/<owner>/workbench-standalone:latest
+```
+
+`docker pull` automatically selects the right architecture on Intel/AMD hosts, Apple Silicon, AWS Graviton, and other ARM machines. To build a specific architecture locally, use Buildx:
+
+```bash
+docker buildx build --platform linux/arm64 --load \
+  -f apps/standalone/Dockerfile -t workbench-standalone:arm64 .
 ```
 
 ## Deployment

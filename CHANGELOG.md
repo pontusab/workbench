@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Standalone Docker image** now publishes a multi-arch manifest for `linux/amd64` and `linux/arm64`, so `ghcr.io/pontusab/workbench-standalone` runs natively on Apple Silicon, AWS Graviton, and other ARM hosts.
+
 ## [0.9.1] - 2026-06-01
 
 ### Added

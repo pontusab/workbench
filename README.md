@@ -12,7 +12,7 @@ Workbench is a modern dashboard for [BullMQ](https://docs.bullmq.io/). Runs jobs
 
 - Zero infrastructure — mounts as a route in your existing app, or run as a standalone Docker container
 - Adapters for Hono, Elysia, Express, Fastify, Koa, NestJS, AdonisJS, Next.js, TanStack Start, Astro, Nuxt, Bun.serve, and h3
-- Standalone image on GHCR (`ghcr.io/<owner>/workbench-standalone`) for Docker / Kubernetes deployments
+- Standalone multi-arch image on GHCR (`ghcr.io/<owner>/workbench-standalone`, `linux/amd64` + `linux/arm64`) for Docker / Kubernetes deployments
 - MCP server for Cursor, Claude Desktop, Zed, and Continue.dev — drive your queues from your editor's chat
 - Flows & DAG view, metrics, schedulers, search
 - Dark-mode UI, basic-auth-protected by default
@@ -436,7 +436,7 @@ docker run --rm -p 3000:3000 \
   ghcr.io/pontusab/workbench-standalone:latest
 ```
 
-Tagged releases publish `ghcr.io/pontusab/workbench-standalone:<version>` automatically.
+Tagged releases publish `ghcr.io/pontusab/workbench-standalone:<version>` automatically, as a multi-arch image (`linux/amd64` and `linux/arm64`).
 
 ## FAQ
 
