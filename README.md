@@ -438,6 +438,10 @@ docker run --rm -p 3000:3000 \
 
 Tagged releases publish `ghcr.io/pontusab/workbench-standalone:<version>` automatically.
 
+## One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/Workbench/)
+
 ## FAQ
 
 **Is it BullMQ-only?** Yes. Bull (legacy) is not supported.
